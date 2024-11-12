@@ -28,11 +28,12 @@ const Header = () => {
                             <NavLink to="login">Login</NavLink>                           
                         </li>
                         <li><NavLink to="signup">SignUp</NavLink></li>
+                        <li><NavLink to="register">Register</NavLink></li>
                     </ul>
                 </div>
                 <a className="btn btn-ghost text-xl">daisyUI</a>
             </div>
-            <div className=" ">
+            <div className="menu ">
                 <ul className=" navbar-center hidden items-center lg:flex px-1 gap-8">
                     <li><NavLink to="/">Home</NavLink></li>
                     <li>
@@ -42,6 +43,7 @@ const Header = () => {
                         
                     </li>
                     <li><NavLink to="signup">SignUp</NavLink></li>
+                    <li><NavLink to="register">Register</NavLink></li>
                 </ul>
             </div>
             <div className="navbar-end">

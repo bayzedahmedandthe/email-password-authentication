@@ -1,10 +1,16 @@
 
 
 const Login = () => {
+    const handleSignUp = (event) => {
+        console.log(event.target);
+    }
+
     return (
-        <div>
-            Login
-        </div>
+
+       <div>
+      
+       </div>
+
     );
 };
 

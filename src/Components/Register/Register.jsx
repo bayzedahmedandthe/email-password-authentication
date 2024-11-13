@@ -1,12 +1,36 @@
-
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase.init";
+import { useState } from "react";
+import { FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
+    const [errorMsg, setErrorMsg] = useState("");
+    const [success, setSuccess] = useState(false);
     const handleRegister = (event) => {
         event.preventDefault();
-
         const email = event.target.email.value;
         const password = event.target.password.value;
-        console.log(email, password);
+        setErrorMsg("");
+        setSuccess(false);
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+        if(!passwordPattern.test(password)){
+            setErrorMsg("passwoed should be 6 characthers or longer")
+            return ;
+        }
+        if(password.length < 6){
+            setErrorMsg("Password should be 6 characthers or longer")
+            return ;
+        }
+        createUserWithEmailAndPassword(auth, email, password)
+        .then((result) => {
+            console.log(result.user);
+            setSuccess(true);
+        })
+        .catch((error) => {
+            console.log("ERROR", error.message);
+            setErrorMsg("This email already exists");
+            setSuccess(false);
+        })
     }
     return (
         <div className="w-[350px] mx-auto mt-20">
@@ -37,9 +61,16 @@ const Register = () => {
                             clipRule="evenodd" />
                     </svg>
                     <input type="password" name="password" className="grow" placeholder="password" />
+                    <button><FaEyeSlash /></button>
                 </label>
                 <button className="btn btn-primary px-[150px] my-6">Register</button>
             </form>
+            {
+                errorMsg && <p className="text-red-500">{errorMsg}</p>
+            }
+            {
+                success && <p className="text-green-500">Sign Up successfull</p>
+            }
         </div>
     );
 };

@@ -1,17 +1,34 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase.init";
+import { useState } from "react";
+import { FaEyeSlash } from "react-icons/fa";
 
 const SignUp = () => {
+    const [errormessage, setErrormessage] = useState("");
+    const [success, setSuccess] = useState(false);
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
     const handleSignUp = (event) => {
         event.preventDefault();
         const email = event.target.email.value;
         const password = event.target.password.value;
+        setErrormessage("");
+        setSuccess(false);
+        if(password.length < 6){
+            setErrormessage("passwoed should be 6 characthers or longer");
+            return ;
+        }
+        if(!passwordPattern.test(password)){
+            setErrormessage("At least one uppercase, one lowercase, at least one number, at least one special character")
+            return;
+        }
         createUserWithEmailAndPassword(auth, email, password)
         .then((result) => {
             console.log(result.user);
+            setSuccess(true);
         })
         .catch((error) => {
             console.log("ERROR", error);
+            setErrormessage("This email already exists")
         })
 
     }
@@ -44,9 +61,16 @@ const SignUp = () => {
                             clipRule="evenodd" />
                     </svg>
                     <input type="password" name="password" className="grow" placeholder="password"  />
+                    <button><FaEyeSlash /></button>
                 </label>
                 <button className="btn btn-primary px-[150px] my-6">SignUp</button>
             </form>
+            {
+                errormessage && <p className="text-red-500">{errormessage}</p>
+            }
+            {
+                success && <p className="text-green-500">Sign Up successfull</p>
+            }
         </div>
     );
 };

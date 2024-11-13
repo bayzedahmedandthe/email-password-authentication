@@ -1,36 +1,48 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "../../firebase.init";
 import { useState } from "react";
 import { FaEyeSlash } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Register = () => {
     const [errorMsg, setErrorMsg] = useState("");
     const [success, setSuccess] = useState(false);
+    const [showpassword, setShowpassword] = useState(false);
     const handleRegister = (event) => {
         event.preventDefault();
         const email = event.target.email.value;
         const password = event.target.password.value;
+        const terms = event.target.terms.checked;
         setErrorMsg("");
         setSuccess(false);
         const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-        if(!passwordPattern.test(password)){
-            setErrorMsg("passwoed should be 6 characthers or longer")
+        if (!passwordPattern.test(password)) {
+            setErrorMsg("At least one uppercase, one lowercase, at least one number, at least one special character")
             return ;
         }
-        if(password.length < 6){
+        if (password.length < 6) {
             setErrorMsg("Password should be 6 characthers or longer")
+            return;
+        }
+        if(!terms){
+            setErrorMsg("please accept our conditions")
             return ;
         }
         createUserWithEmailAndPassword(auth, email, password)
-        .then((result) => {
-            console.log(result.user);
-            setSuccess(true);
-        })
-        .catch((error) => {
-            console.log("ERROR", error.message);
-            setErrorMsg("This email already exists");
-            setSuccess(false);
-        })
+            .then((result) => {
+                console.log(result.user);
+                setSuccess(true);
+                sendEmailVerification(auth.currentUser)
+                .then(() => {
+                    console.log("verification email send");
+                })
+            })
+            .catch((error) => {
+                console.log("ERROR", error.message);
+                setErrorMsg("This email already exists");
+                setSuccess(false);
+            })
     }
     return (
         <div className="w-[350px] mx-auto mt-20">
@@ -60,9 +72,19 @@ const Register = () => {
                             d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z"
                             clipRule="evenodd" />
                     </svg>
-                    <input type="password" name="password" className="grow" placeholder="password" />
-                    <button><FaEyeSlash /></button>
+                    <input type={showpassword ? "text" : "password"} name="password" className="grow" placeholder="password" />
+                    <button onClick={() => setShowpassword(!showpassword)}>
+                        {
+                            showpassword ? <FaEyeSlash></FaEyeSlash> : <FaEye></FaEye>
+                        }
+                    </button>
                 </label>
+                <div className="form-control">
+                    <label className="cursor-pointer justify-start  label mt-4">
+                    <input name="terms" type="checkbox" defaultChecked className="checkbox checkbox-info" />
+                        <span className="label-text ml-4">Accept our terms and condition</span> 
+                    </label>
+                </div>
                 <button className="btn btn-primary px-[150px] my-6">Register</button>
             </form>
             {
@@ -71,6 +93,7 @@ const Register = () => {
             {
                 success && <p className="text-green-500">Sign Up successfull</p>
             }
+            <p>Alredy have an account <Link className="text-blue-500" to="/login">Login</Link></p>
         </div>
     );
 };
